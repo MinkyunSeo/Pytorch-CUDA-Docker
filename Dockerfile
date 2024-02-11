@@ -100,24 +100,12 @@ WORKDIR /home/user
 ENV PATH="${PATH}:/home/user/.local/bin"
 SHELL ["/bin/bash", "-c"]
 
-# # Upgrade pip and install packages.
-# RUN python3.8 -m pip install --upgrade pip setuptools pathtools promise pybind11
-# # Install pytorch and submodules
-# RUN pip install torch==1.11.0 torchvision==0.12.0 --force-reinstall --extra-index-url https://download.pytorch.org/whl/cu113
-# RUN pip install pytorch-lightning==1.9.5
-# RUN pip install --force-reinstall torch-scatter -f https://data.pyg.org/whl/torch-1.11.0+cu113.html
-
 # Switch to root temporarily to install conda packages
 USER root
 RUN conda create -n $CONDA_ENV_NAME python=$PYTHON_VERSION
 
 # Continue with the rest of the installation
 RUN echo "source activate ${CONDA_ENV_NAME}" >> ~/.bashrc
-
-# # Enable jupyter lab
-# RUN source activate ${CONDA_ENV_NAME} && \
-#     conda install -c conda-forge jupyterlab && \
-#     jupyter serverextension enable --py jupyterlab --sys-prefix
 
 # Install the packages
 RUN source activate ${CONDA_ENV_NAME} && \
@@ -143,14 +131,6 @@ RUN sudo apt-get update && \
 RUN curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim.appimage && \
     chmod u+x ./nvim.appimage && \
     sudo mv ./nvim.appimage /usr/local/bin/nvim
-
-# Install NodeJS
-RUN sudo apt-get update
-RUN sudo apt-get install -y ca-certificates curl gnupg
-RUN sudo mkdir -p /etc/apt/keyrings
-RUN curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
-RUN echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
-RUN sudo apt-get update && sudo apt-get install nodejs -y
 
 # Install oh-my-zsh, theme, and plugins
 WORKDIR /home/user
